@@ -73,7 +73,7 @@
         <p>Payment schedule for the next 12 months.</p>
     </div>
 
-    <a href="#" class="download-button">Download CSV</a>
+    <a href="/payments/export" class="download-button">Download CSV</a>
 </div>
 
     <table class="payments-table">

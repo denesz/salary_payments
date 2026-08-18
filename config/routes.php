@@ -76,6 +76,10 @@ return function (RouteBuilder $routes): void {
          * See https://book.cakephp.org/5/en/development/routing.html#fallbacks-method for more information
          */
         $builder->connect('/payments', ['controller' => 'Payments', 'action' => 'index']);
+        $builder->connect('/payments/export', [
+                          'controller' => 'Payments',
+                          'action' => 'export',
+                        ]);
         $builder->fallbacks();
     });
 
