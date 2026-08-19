@@ -66,6 +66,13 @@
     }
 </style>
 
+<?php
+/**
+ * @var \App\View\AppView $this
+ * @var array $payments
+ */
+?>
+
 <div class="payments-container">
     <div class="payments-header">
     <div>
