@@ -1,58 +1,178 @@
-# CakePHP Application Skeleton
+# Salary Payments
 
-![Build Status](https://github.com/cakephp/app/actions/workflows/ci.yml/badge.svg?branch=5.x)
-[![Total Downloads](https://img.shields.io/packagist/dt/cakephp/app.svg?style=flat-square)](https://packagist.org/packages/cakephp/app)
-[![PHPStan](https://img.shields.io/badge/PHPStan-level%208-brightgreen.svg?style=flat-square)](https://github.com/phpstan/phpstan)
+A CakePHP application that calculates salary and bonus payment dates for the next 12 months and allows the payment schedule to be exported as a CSV file.
 
-A skeleton for creating applications with [CakePHP](https://cakephp.org) 5.x.
+## Business Rules
 
-The framework source code can be found here: [cakephp/cakephp](https://github.com/cakephp/cakephp).
+* Basic monthly salary is paid on the last working day of the month, Monday to Friday.
+* If the last day of the month falls on a Saturday or Sunday, the payment date is moved to the previous Friday.
+* Bonuses are paid on the 10th of the following month.
+* If the 10th falls on a Saturday or Sunday, the bonus is paid on the first Tuesday after the 10th.
+
+## Technologies
+
+* PHP 8.2+
+* CakePHP 5
+* Composer
+* PHPUnit
+* Git
 
 ## Installation
 
-1. Download [Composer](https://getcomposer.org/doc/00-intro.md) or update `composer self-update`.
-2. Run `php composer.phar create-project --prefer-dist cakephp/app [app_name]`.
-
-If Composer is installed globally, run
+Clone the repository:
 
 ```bash
-composer create-project --prefer-dist cakephp/app
+git clone https://github.com/denesz/salary_payments.git
 ```
 
-In case you want to use a custom app dir name (e.g. `/myapp/`):
+Enter the project directory:
 
 ```bash
-composer create-project --prefer-dist cakephp/app myapp
+cd salary_payments
 ```
 
-You can now either use your machine's webserver to view the default home page, or start
-up the built-in webserver with:
+Install the project dependencies:
 
 ```bash
-bin/cake server -p 8765
+composer install
 ```
 
-Then visit `http://localhost:8765` to see the welcome page.
+Create the local environment file.
 
-## Demo app
+On Windows PowerShell:
 
-Check out the [5.x-demo branch](https://github.com/cakephp/app/tree/5.x-demo), which contains demo migrations and a seeder.
-See the [README](https://github.com/cakephp/app/blob/5.x-demo/README.md) on how to get it running.
+```powershell
+Copy-Item config\.env.example config\.env
+```
 
-## Update
+On Linux/macOS:
 
-Since this skeleton is a starting point for your application and various files
-would have been modified as per your needs, there isn't a way to provide
-automated upgrades, so you have to do any updates manually.
+```bash
+cp config/.env.example config/.env
+```
 
-## Configuration
+Generate a security salt:
 
-Read and edit the environment specific `config/app_local.php` and set up the
-`'Datasources'` and any other configuration relevant for your application.
-Other environment agnostic settings can be changed in `config/app.php`.
+```bash
+php -r "echo bin2hex(random_bytes(32)), PHP_EOL;"
+```
 
-## Layout
+Open `config/.env` and replace the default `SECURITY_SALT` value with the generated value.
 
-The app skeleton uses [Milligram](https://milligram.io/) (v1.3) minimalist CSS
-framework by default. You can, however, replace it with any other library or
-custom styles.
+## Running the Application
+
+Start the CakePHP development server.
+
+On Windows:
+
+```powershell
+bin\cake server
+```
+
+On Linux/macOS:
+
+```bash
+bin/cake server
+```
+
+Then open:
+
+```text
+http://localhost:8765/
+```
+
+The application displays the salary and bonus payment schedule for the next 12 months.
+
+## CSV Export
+
+The payment schedule can be exported using the **Download CSV** button on the main page.
+
+The generated CSV contains the following columns:
+
+* Month
+* Base Payment Date
+* Bonus Payment Date
+
+Example:
+
+```csv
+Month,"Base Payment Date","Bonus Payment Date"
+"August 2026",31-08-2026,10-09-2026
+"September 2026",30-09-2026,13-10-2026
+```
+
+## Running Tests
+
+The application includes unit tests for the payment calculation logic.
+
+On Windows:
+
+```powershell
+vendor\bin\phpunit
+```
+
+On Linux/macOS:
+
+```bash
+vendor/bin/phpunit
+```
+
+## Project Structure
+
+The main application files are:
+
+```text
+src/
+├── Controller/
+│   └── PaymentsController.php
+└── Service/
+    ├── PaymentCalculator.php
+    └── CsvExporter.php
+
+templates/
+└── Payments/
+    └── index.php
+
+tests/
+└── TestCase/
+    └── Service/
+        └── PaymentCalculatorTest.php
+```
+
+### PaymentCalculator
+
+Contains the business logic used to:
+
+* calculate the base salary payment date;
+* calculate the bonus payment date;
+* generate the payment schedule for the next 12 months.
+
+### CsvExporter
+
+Receives the generated payment schedule and converts it into CSV format.
+
+### PaymentsController
+
+Handles the web requests, calls the required services and sends the calculated data to the view.
+
+It also handles the CSV download response.
+
+### Payments View
+
+Displays the generated payment schedule in an HTML table and provides the CSV download option.
+
+### Unit Tests
+
+`PaymentCalculatorTest` verifies the salary and bonus calculation logic, including weekend cases and the generation of a 12-month schedule.
+
+## Architecture
+
+The application separates its responsibilities into different components:
+
+* **Controller** — handles HTTP requests and coordinates the application flow.
+* **PaymentCalculator Service** — contains the salary and bonus business logic.
+* **CsvExporter Service** — handles CSV generation.
+* **View** — displays the payment schedule to the user.
+* **Tests** — verify that the calculation logic behaves as expected.
+
+This separation keeps the business logic independent from the web interface and CSV generation, making the code easier to test and maintain.
